@@ -1,0 +1,90 @@
+import React, { useState } from "react";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import { Input, Button } from "antd";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+const LogIn = () => {
+  const [loginData, setLogInData] = useState({ email: "", password: "" });
+  const navigate=useNavigate();
+
+  const handleSubmit = () => {
+    let user = JSON.parse(localStorage.getItem("users")) || [];
+    user.map((u)=>({...u,isAuthentication:false}))
+    console.log(user);
+
+    if (!loginData.email || !loginData.password) {
+      alert("please fill in all fields");
+      return;
+    }
+
+    if (
+      user.some(
+        (u) => u.email === loginData.email && u.password === loginData.password
+      )
+    ) {
+      const Index = user.findIndex((el) => el.email === loginData.email);
+      user[Index].isAuthentication = true;
+      localStorage.setItem("users", JSON.stringify(user));
+
+      navigate('/')
+    } else if (user.every((u) => u.email !== loginData.email)) {
+      alert("invalid email");
+    } else if (user.every((u) => u.password !== loginData.password)) {
+      alert("invalid password");
+    }
+  };
+
+  return (
+    <div
+      className="d-flex justify-content-center align-items-center p-4"
+      style={{ height: "91vh" }}
+    >
+      <div
+        className=" p-4 border rounded"
+        style={{
+          height: "25rem",
+          width: "25rem",
+          boxShadow: "2px -1px 20px -4px rgba(0,0,0,0.75)",
+        }}
+      >
+        <h3 className="mt-3">Login</h3>
+        <label className="mt-2">Email:</label>
+        <Input
+          placeholder="email"
+          className="mt-2"
+          value={loginData.email}
+          onChange={(e) =>
+            setLogInData({ ...loginData, email: e.target.value })
+          }
+        />
+        <label className="mt-3">Password:</label>
+        <Input.Password
+          placeholder="password"
+          iconRender={(visible) =>
+            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          }
+          className="mt-2"
+          value={loginData.password}
+          onChange={(e) =>
+            setLogInData({ ...loginData, password: e.target.value })
+          }
+        />
+
+        <Button
+          type="primary"
+          className="my-3 w-100"
+          onClick={() => {
+            handleSubmit();
+          }}
+        >
+          LOGIN
+        </Button>
+
+        <Link to={"/register"}>New user?</Link>
+      </div>
+    </div>
+  );
+};
+
+export default LogIn;
