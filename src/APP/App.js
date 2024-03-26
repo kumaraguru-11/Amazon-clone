@@ -12,7 +12,7 @@ import Loading from "../Components/Loading";
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
+      <BrowserRouter basename="/Amazon-clone">
         <Provider store={store}>
           <NavBar />
           <ErrorBoundary>
