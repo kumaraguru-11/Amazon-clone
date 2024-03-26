@@ -11,17 +11,18 @@ const Home = () => {
   const fullProductList = useSelector((state) => state.products.products);
   const selectedData = useSelector((state) => state.items.item);
 
-  useEffect(() => {
-    dispatch(fetchProducts());
 
+  useEffect(() => {
     // access localstorage data
     let user = JSON.parse(localStorage.getItem("users")) || [];
     dispatch(addUser(user))
   }, [dispatch]);
 
   useEffect(() => {
-    if (selectedData) {
+    if (selectedData.length>0) {
       dispatch(restocked(selectedData));
+    }else {
+          dispatch(fetchProducts());
     }
   }, [dispatch, selectedData]);
 

@@ -2,43 +2,55 @@ import React, { useState } from "react";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Input, Button } from "antd";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../FetchingApi/Slice/userSlice";
 
 const Register = () => {
   const [user, setUser] = useState({
     name: "",
     email: "",
     password: "",
-    isAuthentication:true
+    // image: "",
   });
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = () => {
     if (!user.name || !user.email || !user.password) {
       alert("Please fill in all fields");
       return;
     }
-
+    //get user from the localstorage
     let users = JSON.parse(localStorage.getItem("users")) || [];
-    users.push(user);
+    // Update existing users authentication status
+    users.length > 0 && users.map((u) => ({ ...u, isAuthentication: false }));
+
+    // Add the new user with isAuthentication set to true
+    const newUser = { ...user, isAuthentication: true };
+
+    users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
+    dispatch(addUser(newUser));
+    navigate("/");
+
     setUser({
       name: "",
       email: "",
       password: "",
-      isAuthentication:true
+      image: {},
+      isAuthentication: true,
     });
-    navigate('/');
   };
 
   return (
     <div
-      className="d-flex justify-content-center align-items-center p-4"
+      className="d-flex justify-content-center align-items-center p-5"
       style={{ height: "91vh" }}
     >
       <div
-        className=" p-4 border rounded"
+        className=" p-3 border rounded"
         style={{
-          height: "25rem",
+          height: "28rem",
           width: "25rem",
           boxShadow: "2px -1px 20px -4px rgba(0,0,0,0.75)",
         }}

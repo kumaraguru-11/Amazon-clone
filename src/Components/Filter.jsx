@@ -8,8 +8,8 @@ const Filter = () => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(0);
 
-  const [modifiedData, setModifiedData] = useState([]);
-  const [category, setCategory] = useState("");
+  const [modifiedData, setModifiedData] = useState([]); //for sort data based on price
+  const [category, setCategory] = useState(""); //For Display product with specified category.
   const [btnstyle, setBtnStyle] = useState({ btn1: false, btn2: false });
   const Data = useSelector((state) => state.products.products);
   const dispatch = useDispatch();
@@ -18,22 +18,24 @@ const Filter = () => {
   const onChange = (newValue) => {
     setInputValue(newValue);
     let temp = JSON.parse(JSON.stringify(Data));
-    let filterTemp= temp.filter((product)=>{return product.price <= newValue })
+    let filterTemp = temp.filter((product) => {
+      return product.price <= newValue;
+    });
     setModifiedData(filterTemp);
   };
 
   const showDrawer = () => {
     setOpen(true);
     setBtnStyle({ btn1: false, btn2: false });
-    setCategory('')
-    setInputValue(0)
+    setCategory("");
+    setInputValue(0);
   };
 
   const onClose = () => {
     setOpen(false);
     setModifiedData([]);
     setCategory("");
-    setInputValue(0)
+    setInputValue(0);
   };
 
   //custom Functions

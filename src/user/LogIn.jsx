@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { Input, Button } from "antd";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../FetchingApi/Slice/userSlice";
 
 const LogIn = () => {
   const [loginData, setLogInData] = useState({ email: "", password: "" });
-  const navigate=useNavigate();
+  // const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = () => {
-    let user = JSON.parse(localStorage.getItem("users")) || [];
-    user.map((u)=>({...u,isAuthentication:false}))
-    console.log(user);
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    users.map((u) => ({ ...u, isAuthentication: false }));
 
     if (!loginData.email || !loginData.password) {
       alert("please fill in all fields");
@@ -19,19 +21,22 @@ const LogIn = () => {
     }
 
     if (
-      user.some(
+      users.some(
         (u) => u.email === loginData.email && u.password === loginData.password
       )
     ) {
-      const Index = user.findIndex((el) => el.email === loginData.email);
-      user[Index].isAuthentication = true;
-      localStorage.setItem("users", JSON.stringify(user));
+      const Index = users.findIndex((el) => el.email === loginData.email);
+      users[Index].isAuthentication = true;
+      localStorage.setItem("users", JSON.stringify(users));
+      dispatch(addUser(users));
 
-      navigate('/')
-    } else if (user.every((u) => u.email !== loginData.email)) {
+      navigate("/");
+    } else if (users.every((u) => u.email !== loginData.email)) {
       alert("invalid email");
-    } else if (user.every((u) => u.password !== loginData.password)) {
+    } else if (users.every((u) => u.password !== loginData.password)) {
       alert("invalid password");
+    } else {
+      alert("invalid input");
     }
   };
 

@@ -34,14 +34,14 @@ const ProductDetail = () => {
 
     // Check if the product is already in the cart
     const existingProductIndex = cart.findIndex(
-      (item) => item.product === product.id
+      (item) => item.productId === product.id
     );
     if (existingProductIndex !== -1) {
       // If the product is already in the cart, update the quantity
       cart[existingProductIndex].quantity = addItem;
     } else {
       // If the product is not in the cart, add it to the cart array
-      cart.push({ product: product.id, quantity: addItem });
+      cart.push({ productId: product.id, quantity: addItem });
     }
 
     // Store the updated cart array back in localStorage

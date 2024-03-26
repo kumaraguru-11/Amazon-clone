@@ -4,7 +4,7 @@ import axios from "axios";
 const initialState = {
   productloading: false,
   product: {},
-  multipleProduct:[],
+  multipleProduct: [],
   producterror: "",
 };
 
@@ -20,11 +20,12 @@ export const fetchSingleProducts = createAsyncThunk(
 const singleProductSlice = createSlice({
   name: "singleProducts",
   initialState,
-  reducers:{
-    removeItem:(state,action)=>{
- state.multipleProduct = state.multipleProduct.filter(
-   (item) => item.id !== action.payload
- );    },
+  reducers: {
+    removeItem: (state, action) => {
+      state.multipleProduct = state.multipleProduct.filter(
+        (item) => item.id !== action.payload
+      );
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchSingleProducts.pending, (state) => {
@@ -34,27 +35,27 @@ const singleProductSlice = createSlice({
       state.productloading = false;
       state.product = action.payload;
 
-       const existingProductIndex = state.multipleProduct.findIndex(
-         (product) => product.id === action.payload.id
-       );
-       if (existingProductIndex !== -1) {
-         // Update existing product if it already exists
-         state.multipleProduct[existingProductIndex] = action.payload;
-       } else {
-         // Otherwise, push the new product
-         state.multipleProduct.push(action.payload);
-       }
+      const existingProductIndex = state.multipleProduct.findIndex(
+        (product) => product.id === action.payload.id
+      );
+      if (existingProductIndex !== -1) {
+        // Update existing product if it already exists
+        state.multipleProduct[existingProductIndex] = action.payload;
+      } else {
+        // Otherwise, push the new product
+        state.multipleProduct.push(action.payload);
+      }
 
       state.producterror = "";
     });
     builder.addCase(fetchSingleProducts.rejected, (state, action) => {
       state.productloading = false;
       state.product = {};
-      state.multipleProduct=[];
+      state.multipleProduct = [];
       state.producterror = action.error.message;
     });
   },
 });
 
 export default singleProductSlice.reducer;
-export const {removeItem} = singleProductSlice.actions;
+export const { removeItem } = singleProductSlice.actions;

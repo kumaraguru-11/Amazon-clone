@@ -1,60 +1,73 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchSingleProducts,
   removeItem,
 } from "../FetchingApi/API/FetchSingleProduct";
+import { updateCart } from "../FetchingApi/Slice/userSlice";
 import { Button, Empty, List, Image } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { MdDeleteForever } from "react-icons/md";
 
 const Cart = () => {
-  const [quantity, setQuantity] = useState([]);
+  //get product data
   const product = useSelector((state) => state.singleProduct.multipleProduct);
+  //get user data
+  const user = useSelector((state) => state.user.user) || null;
+  //get product/cart quantity
+  const cartQty = useSelector((state) => state.user.cartQty);
+  const [quantity, setquantity] = React.useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    setQuantity(cart);
-    cart.length > 0 &&
-      cart.map((el) => dispatch(fetchSingleProducts(el.product)));
-  }, [dispatch]);
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+    cart.length > 0 &&
+      cart.map((el) => dispatch(fetchSingleProducts(el.productId)));
+    dispatch(updateCart(cart));
+    setquantity(cart);
+  }, [dispatch, setquantity]);
 
   const handleDeleteCart = (id) => {
-    let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-    const deleteItem = cartItems.filter((item) => {
-      return item.product !== id;
+    let temp = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const deleteItem = temp.filter((item) => {
+      return item.productId !== id;
     });
     localStorage.setItem("cart", JSON.stringify(deleteItem));
     dispatch(removeItem(id));
-    setQuantity(cartItems)
   };
 
   const handleModifieCart = (id, action) => {
-    let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-
-    let index = cartItems.findIndex((item) => item.product === id);
+    let temp = JSON.parse(localStorage.getItem("cart")) || [];
+    let index = temp.findIndex((item) => item.productId === id);
     if (index !== -1) {
       if (action === "increment") {
-        cartItems[index].quantity += 1;
-      } else if (action === "decrement" && cartItems[index].quantity > 0) {
-        cartItems[index].quantity -= 1;
+        temp[index] = { ...temp[index], quantity: temp[index].quantity + 1 };
+      } else if (action === "decrement" && temp[index].quantity > 0) {
+        temp[index] = { ...temp[index], quantity: temp[index].quantity - 1 };
       }
-      localStorage.setItem("cart", JSON.stringify(cartItems));
-
-      setQuantity(cartItems);
+      localStorage.setItem("cart", JSON.stringify(temp));
+      dispatch(updateCart(temp));
     }
+  };
+
+  //checkout button
+  const handleCheckout = () => {
+    let checkAuthentication = user.some((user) => {
+      return user.isAuthentication === true;
+    });
+    checkAuthentication ? navigate("/shipping") : navigate("/login");
   };
 
   return (
     <div style={{ height: "91vh" }}>
-      {product.length > 0 ? (
+      {product.length > 0 && quantity ? (
         <div style={{ display: "flex" }} className="cartPage">
           {/* ---------- CART LIST ------------- */}
           <div className="cartPage-list">
-            <h2>{`Your Cart: ${quantity.length} Items`}</h2>
+            <h2>{`Your Cart: ${quantity && quantity.length} Items`}</h2>
             {
               <List
                 itemLayout="horizontal"
@@ -74,8 +87,13 @@ const Cart = () => {
                         />
                       </div>
 
-                      <div className="col-4 col-md-3">
-                        <h5 className="text-truncate">{item.title}</h5>
+                      <div className="col-4 col-md-3 cartItem-hover">
+                        <Link
+                          to={`/product/${item.id}`}
+                          style={{ textDecoration: "none", color: "black" }}
+                        >
+                          <h5 className="text-truncate">{item.title}</h5>
+                        </Link>
                       </div>
 
                       <div className="col-2 col-md-2">
@@ -92,7 +110,7 @@ const Cart = () => {
                           -
                         </Button>
                         <span className="mx-3">
-                          {quantity.find((el) => el.product === item.id)
+                          {cartQty.find((el) => el.productId === item.id)
                             ?.quantity || 1}
                         </span>
                         <Button
@@ -124,9 +142,9 @@ const Cart = () => {
               <h4>Order Summary</h4>
               <hr />
               <p className="d-flex justify-content-between">
-                subTotal:
+                Units:
                 <span className="fw-bolder">
-                  {quantity.reduce((acc, item) => acc + item.quantity, 0)}
+                  {cartQty.reduce((acc, item) => acc + item.quantity, 0)}
                   (Units)
                 </span>
               </p>
@@ -134,10 +152,10 @@ const Cart = () => {
                 Est.Total:
                 <span className="fw-bolder">
                   $
-                  {quantity.reduce((acc, curr) => {
-                    // Find the matching item in quantity
+                  {cartQty.reduce((acc, curr) => {
+                    // Find the matching item in cartQty
                     const item = product.find(
-                      (item) => item.id === curr.product
+                      (item) => item.id === curr.productId
                     );
                     // Calculate the cost for the current product
                     const cost = item ? item.price * curr.quantity : 0;
@@ -148,7 +166,13 @@ const Cart = () => {
                 </span>
               </p>
               <hr />
-              <Button className="fw-bolder w-100" type="primary" onClick={()=>{}}>
+              <Button
+                className="fw-bolder w-100"
+                type="primary"
+                onClick={() => {
+                  handleCheckout();
+                }}
+              >
                 Check out
               </Button>
             </div>

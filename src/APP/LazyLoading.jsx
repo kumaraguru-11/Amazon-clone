@@ -9,6 +9,8 @@ const Shipping = React.lazy(() => import("../cart/Shipping"));
 const ProductDetail = React.lazy(() => import("../Pages/ProductDetail"));
 const LogIn=React.lazy(()=>import('../user/LogIn'));
 const Register=React.lazy(()=>import('../user/Register'));
+const Orders=React.lazy(()=>import('../user/Orders'));
+const OrderSuccess=React.lazy(()=>import('../cart/OrderSuccess'));
 
 export const PUBLIC_ROUTES = [
   {
@@ -31,9 +33,11 @@ export const PUBLIC_ROUTES = [
     path: "/payment",
     component: Payement,
   },
+  {path:'/payment/success',component:OrderSuccess},
   { path: "/product/:Id", component: ProductDetail },
   {path:'/login',component:LogIn},
   {path:'/register',component:Register},
+  {path:'/orders',component:Orders},
   { path: "*", component: PageNotFound },
 
 ];
