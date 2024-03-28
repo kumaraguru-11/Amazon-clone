@@ -17,7 +17,6 @@ const NavBar = () => {
     users =
       users.length > 0 && users.map((u) => ({ ...u, isAuthentication: false }));
 
-    console.log(users);
     localStorage.setItem("users", JSON.stringify(users));
     dispatch(addUser(users));
     navigate("/login");
